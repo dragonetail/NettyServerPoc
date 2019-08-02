@@ -26,7 +26,9 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        log.info("得到消息，开始处理。");
+        if(log.isDebugEnabled()) {
+            log.debug("服务器收到客户端消息: {}" , msg);
+        }
 
         BaseMessage message = (BaseMessage)msg;
         message.process(ctx);
@@ -35,19 +37,20 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) { // (5)
         Channel incoming = ctx.channel();
-        System.out.println("Client:" + incoming.remoteAddress() + "在线");
+        log.info("客户端{}上线。" , incoming.remoteAddress());
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) { // (6)
         Channel incoming = ctx.channel();
-        System.out.println("Client:" + incoming.remoteAddress() + "掉线");
+        log.info("客户端{}掉线。" , incoming.remoteAddress());
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) { // (7)
         Channel incoming = ctx.channel();
-        log.warn("Client:" + incoming.remoteAddress() + "异常", cause);
+        log.warn("服务器{}处理异常，将中断连接。" , incoming.remoteAddress(), cause);
+
         // 当出现异常就关闭连接
         ctx.close();
     }

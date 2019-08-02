@@ -5,7 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class BaseProcessor<T extends BaseMessage> extends BaseMessage {
+public class BaseProcessor<T extends BaseMessage> {
 
     public void process(T payload, ChannelHandlerContext ctx){
         Channel incoming = ctx.channel();

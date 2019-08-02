@@ -19,6 +19,7 @@ public class ServerHeartbeatCheckHandler extends ChannelInboundHandlerAdapter {
                 log.info("没有收到客户端的心跳，将断开连接。");
                 ctx.channel().close();
             }
+            super.userEventTriggered(ctx, event);
         } else {
             super.userEventTriggered(ctx, event);
         }

@@ -1,12 +1,12 @@
 package com.github.dragonetail.netty.poc.core.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.dragonetail.netty.poc.core.common.Packet;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 
+@Slf4j
 public class JsonUtils {
     private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -14,6 +14,7 @@ public class JsonUtils {
         try {
             return mapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
+            log.error("对象转JSON失败。", e);
             throw new IllegalStateException("对象转JSON失败。", e);
         }
     }
@@ -22,15 +23,17 @@ public class JsonUtils {
         try {
             return mapper.readValue(json, clazz);
         } catch (IOException e) {
+            log.error("JSON转对象失败。", e);
             throw new IllegalStateException("JSON转对象失败。", e);
         }
     }
 
-    public static Packet<?> fromJson(String json, TypeReference<?> typeReference) {
-        try {
-            return mapper.readValue(json, typeReference);
-        } catch (IOException e) {
-            throw new IllegalStateException("JSON转对象失败。", e);
-        }
-    }
+//    public static Packet<?> fromJson(String json, TypeReference<?> typeReference) {
+//        try {
+//            return mapper.readValue(json, typeReference);
+//        } catch (IOException e) {
+//            log.error("JSON转对象失败。", e);
+//            throw new IllegalStateException("JSON转对象失败。", e);
+//        }
+//    }
 }

@@ -35,11 +35,9 @@ public class NettyServer {
 
     /**
      * 启动Netty Server
-     *
-     * @throws InterruptedException
      */
     @PostConstruct
-    public void start() throws InterruptedException {
+    public void startup() {
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(bossGroup, workerGroup)
@@ -65,10 +63,10 @@ public class NettyServer {
                                     //空闲检测
                                     .addLast(new IdleStateHandler(60, 0, 0))
                                     .addLast("frameDecode", new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE,
-                                            0, 2, 0, 2))
+                                            0, 4, 0, 0))
                                     .addLast("decoder", new MessageDecoderHandler())
                                     // 编码之前增加 两个字节的消息长度，
-                                    .addLast("frame encoder", new LengthFieldPrepender(2))
+                                    .addLast("frame encoder", new LengthFieldPrepender(4))
                                     .addLast("encoder", new MessageEncoderHandler())
                                     .addLast(new ServerHeartbeatCheckHandler())
                                     .addLast(new ServerHandler());
@@ -77,21 +75,27 @@ public class NettyServer {
 
             ChannelFuture future = bootstrap.bind().sync();
             if (future.isSuccess()) {
-                log.info("Netty Server已启动。");
+                log.info("服务器已启动。");
             }
 
             // 应用程序会一直等待，直到channel关闭
             future.channel().closeFuture().sync();
         } catch (Exception e) {
-            log.error("Netty Server运行异常。", e);
+            log.error("服务器启动异常。", e);
             destroy();
         }
     }
 
     @PreDestroy
-    public void destroy() throws InterruptedException {
-        bossGroup.shutdownGracefully().sync();
-        workerGroup.shutdownGracefully().sync();
-        log.info("Netty Server已关闭。");
+    public void destroy()  {
+        try {
+            bossGroup.shutdownGracefully().sync();
+        } catch (InterruptedException e) {
+        }
+        try {
+            workerGroup.shutdownGracefully().sync();
+        } catch (InterruptedException e) {
+        }
+        log.info("服务器已退出。");
     }
 }

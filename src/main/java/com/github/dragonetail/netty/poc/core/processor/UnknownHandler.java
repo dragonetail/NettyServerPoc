@@ -5,8 +5,10 @@ import com.github.dragonetail.netty.poc.core.common.BaseProcessor;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 @Slf4j
+@Component
 public final class UnknownHandler extends BaseProcessor<BaseMessage> {
 
     @Override

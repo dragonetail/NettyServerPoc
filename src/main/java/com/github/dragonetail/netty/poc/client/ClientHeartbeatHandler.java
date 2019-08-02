@@ -1,7 +1,6 @@
 package com.github.dragonetail.netty.poc.client;
 
 import com.github.dragonetail.netty.poc.core.message.HeartBeatMessage;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -18,11 +17,10 @@ public class ClientHeartbeatHandler extends ChannelInboundHandlerAdapter {
         if (event instanceof IdleStateEvent) {
             IdleStateEvent idleStateEvent = (IdleStateEvent) event;
             if (idleStateEvent.state() == IdleState.WRITER_IDLE) {
-                log.info("已经30s没有发送消息给服务端");
-
                 HeartBeatMessage message = new HeartBeatMessage();
-                //发送心跳消息，并在发送失败时关闭该连接
-                ctx.writeAndFlush(message).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+//                //发送心跳消息，并在发送失败时关闭该连接
+//                ctx.writeAndFlush(message).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+//                log.info("已向服务器发送心跳包。");
             }
         } else {
             super.userEventTriggered(ctx, event);

@@ -10,12 +10,10 @@ import lombok.Setter;
 
 @Setter
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
 public class SampleRequestMessage extends BaseMessage {
     private String content;
 
-    public Command getCommand(){
+    public Command command(){
         return Command.sampleRequest;
     }
 }

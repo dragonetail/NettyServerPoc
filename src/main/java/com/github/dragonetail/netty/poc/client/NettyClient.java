@@ -11,6 +11,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.timeout.IdleStateHandler;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,9 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class NettyClient {
     private EventLoopGroup workerGroup = new NioEventLoopGroup();
+    @Getter
+    @Value("${netty.clientId}")
+    private String clientId;
     @Value("${netty.port}")
     private int port;
     @Value("${netty.host}")
@@ -30,11 +34,11 @@ public class NettyClient {
     private Channel channel;
 
     public <T extends BaseMessage> void send(T message) {
-            channel.writeAndFlush(message);
+        channel.writeAndFlush(message).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
     }
 
     @PostConstruct
-    public void start() {
+    public void connect() {
         NettyClient nettyClient = this;
         try {
             Bootstrap bootstrap = new Bootstrap();
@@ -50,10 +54,10 @@ public class NettyClient {
                             ch.pipeline()
                                     .addLast(new IdleStateHandler(0, 30, 0))
                                     .addLast("frameDecode", new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE,
-                                            0, 2, 0, 2))
+                                            0, 4, 0, 0))
                                     .addLast("decoder", new MessageDecoderHandler())
                                     // 编码之前增加 两个字节的消息长度，
-                                    .addLast("frame encoder", new LengthFieldPrepender(2))
+                                    .addLast("frame encoder", new LengthFieldPrepender(4))
                                     .addLast("encoder", new MessageEncoderHandler())
                                     .addLast(new ClientHeartbeatHandler())
                                     .addLast(new ClientHandler(nettyClient));
@@ -64,24 +68,25 @@ public class NettyClient {
             channelFuture.addListener((ChannelFutureListener) future -> {
                         if (future.isSuccess()) {
                             channel = future.sync().channel();
-                            log.info("连接Netty服务端成功");
-
-                            channel.closeFuture().sync();
+                            log.info("连接服务端成功。");
                         } else {
-                            log.info("连接失败，进行断线重连");
-                            future.channel().eventLoop().schedule(() -> start(), 20, TimeUnit.SECONDS);
+                            log.info("连接失败，进行断线重连。");
+                            future.channel().eventLoop().schedule(() -> connect(), 10, TimeUnit.SECONDS);
                         }
                     }
             );
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("发起向服务器的连接失败。", e);
         }
     }
 
     @PreDestroy
     public void destroy() {
         channel.close();
-        workerGroup.shutdownGracefully();
-        log.info("Netty Client已关闭。");
+        try {
+            workerGroup.shutdownGracefully().sync();
+        } catch (InterruptedException e) {
+        }
+        log.info("客户端已退出。");
     }
 }
