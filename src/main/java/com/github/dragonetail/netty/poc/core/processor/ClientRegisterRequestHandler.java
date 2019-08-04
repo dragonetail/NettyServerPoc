@@ -4,8 +4,6 @@ import com.github.dragonetail.netty.poc.core.ResponseCode;
 import com.github.dragonetail.netty.poc.core.common.BaseProcessor;
 import com.github.dragonetail.netty.poc.core.message.ClientRegisterRequestMessage;
 import com.github.dragonetail.netty.poc.core.message.ClientRegisterResponseMessage;
-import com.github.dragonetail.netty.poc.sample.message.SampleRequestMessage;
-import com.github.dragonetail.netty.poc.sample.message.SampleResponseMessage;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;

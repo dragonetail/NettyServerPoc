@@ -79,7 +79,7 @@ public class NettyServer {
             }
 
             // 应用程序会一直等待，直到channel关闭
-            future.channel().closeFuture().sync();
+            //future.channel().closeFuture().sync();
         } catch (Exception e) {
             log.error("服务器启动异常。", e);
             destroy();

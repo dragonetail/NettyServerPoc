@@ -3,9 +3,7 @@ package com.github.dragonetail.netty.poc.sample.message;
 
 import com.github.dragonetail.netty.poc.core.common.BaseMessage;
 import com.github.dragonetail.netty.poc.core.Command;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Setter

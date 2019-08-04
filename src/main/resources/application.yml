@@ -1,3 +1,6 @@
+server:
+  port: 8080
+
 netty:
   clientId: XAHI20190801
   host: 127.0.0.1
