@@ -1,4 +1,4 @@
-package com.github.dragonetail.netty.poc.sample.message;
+package com.github.dragonetail.netty.poc.echo.message;
 
 
 import com.github.dragonetail.netty.poc.core.common.BaseMessage;
@@ -8,10 +8,10 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class SampleResponseMessage extends BaseMessage {
+public class EchoRequestMessage extends BaseMessage {
     private String content;
 
     public Command command(){
-        return Command.sampleResponse;
+        return Command.echoRequest;
     }
 }

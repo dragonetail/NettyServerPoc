@@ -48,7 +48,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 
         //如果运行过程中服务端挂了,执行重连机制
         EventLoop eventLoop = ctx.channel().eventLoop();
-        eventLoop.schedule(() -> nettyClient.connect(), 10L, TimeUnit.SECONDS);
+        eventLoop.schedule(() -> nettyClient.connect(), nettyClient.getReconnectingSeconds(), TimeUnit.SECONDS);
 
         super.channelInactive(ctx);
     }

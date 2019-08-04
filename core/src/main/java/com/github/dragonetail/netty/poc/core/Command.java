@@ -9,10 +9,10 @@ import com.github.dragonetail.netty.poc.core.message.UnknownMessage;
 import com.github.dragonetail.netty.poc.core.processor.HeartBeatProcessor;
 import com.github.dragonetail.netty.poc.core.processor.UnknownProcessor;
 import com.github.dragonetail.netty.poc.core.utils.SpringContextUtils;
-import com.github.dragonetail.netty.poc.sample.message.SampleRequestMessage;
-import com.github.dragonetail.netty.poc.sample.message.SampleResponseMessage;
-import com.github.dragonetail.netty.poc.sample.procesor.SampleRequestProcessor;
-import com.github.dragonetail.netty.poc.sample.procesor.SampleResponseProcessor;
+import com.github.dragonetail.netty.poc.echo.message.EchoRequestMessage;
+import com.github.dragonetail.netty.poc.echo.message.EchoResponseMessage;
+import com.github.dragonetail.netty.poc.echo.procesor.EchoRequestProcessor;
+import com.github.dragonetail.netty.poc.echo.procesor.EchoResponseProcessor;
 import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
@@ -23,8 +23,8 @@ public enum Command {
     heartBeat(0,  HeartBeatProcessor.class.getSimpleName(), HeartBeatMessage.class),
     clientRegisterRequest(1,  "ClientRegisterRequestProcessor", ClientRegisterRequestMessage.class),
     clientRegisterResponse(2,  "ClientRegisterResponseProcessor", ClientRegisterResponseMessage.class),
-    sampleRequest(10,  SampleRequestProcessor.class.getSimpleName(), SampleRequestMessage.class),
-    sampleResponse(11,  SampleResponseProcessor.class.getSimpleName(), SampleResponseMessage.class);
+    echoRequest(90000001,  EchoRequestProcessor.class.getSimpleName(), EchoRequestMessage.class),
+    echoResponse(90000002,  EchoResponseProcessor.class.getSimpleName(), EchoResponseMessage.class);
 
     public final int code;
     public final String processorName;

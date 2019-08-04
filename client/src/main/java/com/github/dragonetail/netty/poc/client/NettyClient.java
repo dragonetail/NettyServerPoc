@@ -11,6 +11,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
+import io.netty.handler.codec.compression.ZlibCodecFactory;
+import io.netty.handler.codec.compression.ZlibWrapper;
 import io.netty.handler.timeout.IdleStateHandler;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +37,10 @@ public class NettyClient {
     private String host;
     @Value("${netty.idleTimeSeconds}")
     private int idleTimeSeconds;
+    @Getter
+    @Value("${netty.reconnectingSeconds}")
+    private int reconnectingSeconds;
+
 
     private Channel channel;
 
@@ -63,13 +69,16 @@ public class NettyClient {
                             ch.pipeline()
                                     .addLast(new IdleStateHandler(idleTimeSeconds + 10, idleTimeSeconds, 0))
                                     .addLast("frameDecode", new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE,
-                                            0, 4, 0, 0))
-                                    .addLast("decoder", new MessageDecoderHandler())
+                                            0, 4, 0, 4))
                                     // 编码之前增加 两个字节的消息长度，
-                                    .addLast("frame encoder", new LengthFieldPrepender(4))
-                                    .addLast("encoder", new MessageEncoderHandler())
+                                    .addLast("frameEncoder", new LengthFieldPrepender(4))
+                                    .addLast("inflater", ZlibCodecFactory.newZlibDecoder(ZlibWrapper.GZIP))
+                                    .addLast("deflater", ZlibCodecFactory.newZlibEncoder(ZlibWrapper.GZIP))
+                                    .addLast("messageDecoder", new MessageDecoderHandler())
+                                    .addLast("messageEncoder", new MessageEncoderHandler())
                                     .addLast(heartbeatHandler)
                                     .addLast(clientHandler);
+
                         }
                     });
 
@@ -80,7 +89,7 @@ public class NettyClient {
                             log.info("连接服务端成功。");
                         } else {
                             log.info("连接失败，进行断线重连。");
-                            future.channel().eventLoop().schedule(() -> connect(), 10, TimeUnit.SECONDS);
+                            future.channel().eventLoop().schedule(() -> connect(), reconnectingSeconds, TimeUnit.SECONDS);
                         }
                     }
             );

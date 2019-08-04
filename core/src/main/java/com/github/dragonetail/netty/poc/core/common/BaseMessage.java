@@ -41,17 +41,14 @@ public class BaseMessage {
 
         out.writeInt(command().code);
         out.writeBytes(messageStrBytes);
-        //TODO  out.writeBytes(packetBytesCRC);
     }
 
     public static BaseMessage unpack(ByteBuf in) {
-        int length = in.readInt();
         int commandCode = in.readInt();
         Command command = Command.from(commandCode);
 
-        ByteBuf messageStrBytes = in.readBytes(length - 4);
+        ByteBuf messageStrBytes = in.readBytes(in.readableBytes());
         String messageStr = messageStrBytes.toString(utf8);
-        //TODO  CRC verify
 
         BaseMessage message = JsonUtils.fromJson(messageStr, command.messageClass);
         return message;

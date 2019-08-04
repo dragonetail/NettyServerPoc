@@ -1,7 +1,7 @@
 package com.github.dragonetail.netty.poc.controller;
 
-import com.github.dragonetail.netty.poc.sample.message.SampleRequestMessage;
-import com.github.dragonetail.netty.poc.sample.message.SampleResponseMessage;
+import com.github.dragonetail.netty.poc.echo.message.EchoRequestMessage;
+import com.github.dragonetail.netty.poc.echo.message.EchoResponseMessage;
 import com.github.dragonetail.netty.poc.server.ClientHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,18 +21,18 @@ public class ServerController {
         return "Hi, Netty Server!";
     }
 
-    @GetMapping("/server/sendSampleRequest")
-    public String sendSampleRequest() {
-        SampleRequestMessage message = new SampleRequestMessage();
-        message.setContent("【Hi,2019.8.1 as SampleRequest from server to "+ clientId + "】");
+    @GetMapping("/server/sendEchoRequest")
+    public String sendEchoRequest() {
+        EchoRequestMessage message = new EchoRequestMessage();
+        message.setContent("【Hi,2019.8.1 as EchoRequest from server to "+ clientId + "】");
         clientHolder.send(clientId,message);
         return "sent ok";
     }
 
-    @GetMapping("/server/sendSampleResponse")
-    public String sendSampleResponse() {
-        SampleResponseMessage message = new SampleResponseMessage();
-        message.setContent("【Hi,2019.8.1 as SampleResponse from client "+ clientId + "】");
+    @GetMapping("/server/sendEchoResponse")
+    public String sendEchoResponse() {
+        EchoResponseMessage message = new EchoResponseMessage();
+        message.setContent("【Hi,2019.8.1 as EchoResponse from client "+ clientId + "】");
         clientHolder.send(clientId, message);
         return "sent ok";
     }

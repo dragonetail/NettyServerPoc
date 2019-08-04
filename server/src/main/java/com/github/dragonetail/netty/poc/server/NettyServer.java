@@ -10,6 +10,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
+import io.netty.handler.codec.compression.ZlibCodecFactory;
+import io.netty.handler.codec.compression.ZlibWrapper;
 import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,11 +74,13 @@ public class NettyServer {
                                     //空闲检测
                                     .addLast(new IdleStateHandler(idleTimeSeconds + 10, idleTimeSeconds, 0))
                                     .addLast("frameDecode", new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE,
-                                            0, 4, 0, 0))
-                                    .addLast("decoder", new MessageDecoderHandler())
+                                            0, 4, 0, 4))
                                     // 编码之前增加 两个字节的消息长度，
-                                    .addLast("frame encoder", new LengthFieldPrepender(4))
-                                    .addLast("encoder", new MessageEncoderHandler())
+                                    .addLast("frameEncoder", new LengthFieldPrepender(4))
+                                    .addLast("inflater", ZlibCodecFactory.newZlibDecoder(ZlibWrapper.GZIP))
+                                    .addLast("deflater", ZlibCodecFactory.newZlibEncoder(ZlibWrapper.GZIP))
+                                    .addLast("messageDecoder", new MessageDecoderHandler())
+                                    .addLast("messageEncoder", new MessageEncoderHandler())
                                     .addLast(heartbeatHandler)
                                     .addLast(serverHandler);
                         }
