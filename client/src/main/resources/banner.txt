@@ -1,4 +1,4 @@
 
-Spring Boot ${spring-boot.version}
+Netty Client V1.0
                                                          
                                                          

@@ -2,6 +2,7 @@ package com.github.dragonetail.netty.poc.client;
 
 
 import com.github.dragonetail.netty.poc.core.common.BaseMessage;
+import com.github.dragonetail.netty.poc.core.handler.HeartbeatHandler;
 import com.github.dragonetail.netty.poc.core.handler.MessageDecoderHandler;
 import com.github.dragonetail.netty.poc.core.handler.MessageEncoderHandler;
 import io.netty.bootstrap.Bootstrap;
@@ -13,6 +14,7 @@ import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.timeout.IdleStateHandler;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -20,8 +22,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.concurrent.TimeUnit;
 
-@Component
 @Slf4j
+@Component
 public class NettyClient {
     private EventLoopGroup workerGroup = new NioEventLoopGroup();
     @Getter
@@ -31,7 +33,15 @@ public class NettyClient {
     private int port;
     @Value("${netty.host}")
     private String host;
+    @Value("${netty.idleTimeSeconds}")
+    private int idleTimeSeconds;
+
     private Channel channel;
+
+    @Autowired
+    private ClientHandler clientHandler;
+    @Autowired
+    private HeartbeatHandler heartbeatHandler;
 
     public <T extends BaseMessage> void send(T message) {
         channel.writeAndFlush(message).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
@@ -39,7 +49,6 @@ public class NettyClient {
 
     @PostConstruct
     public void connect() {
-        NettyClient nettyClient = this;
         try {
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(workerGroup)
@@ -52,15 +61,15 @@ public class NettyClient {
                         @Override
                         protected void initChannel(Channel ch) throws Exception {
                             ch.pipeline()
-                                    .addLast(new IdleStateHandler(0, 30, 0))
+                                    .addLast(new IdleStateHandler(idleTimeSeconds + 10, idleTimeSeconds, 0))
                                     .addLast("frameDecode", new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE,
                                             0, 4, 0, 0))
                                     .addLast("decoder", new MessageDecoderHandler())
                                     // 编码之前增加 两个字节的消息长度，
                                     .addLast("frame encoder", new LengthFieldPrepender(4))
                                     .addLast("encoder", new MessageEncoderHandler())
-                                    .addLast(new ClientHeartbeatHandler())
-                                    .addLast(new ClientHandler(nettyClient));
+                                    .addLast(heartbeatHandler)
+                                    .addLast(clientHandler);
                         }
                     });
 

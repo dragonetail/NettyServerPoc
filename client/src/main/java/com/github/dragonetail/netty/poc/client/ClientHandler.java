@@ -6,17 +6,17 @@ import com.github.dragonetail.netty.poc.core.message.HeartBeatMessage;
 import io.netty.channel.*;
 import io.netty.channel.ChannelHandler.Sharable;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Sharable
+@Component
 public class ClientHandler extends ChannelInboundHandlerAdapter {
+    @Autowired
     private NettyClient nettyClient;
-
-    public ClientHandler(NettyClient nettyClient) {
-        this.nettyClient = nettyClient;
-    }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
@@ -29,7 +29,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
         ClientRegisterRequestMessage registerRequest = new ClientRegisterRequestMessage();
         registerRequest.setClientId(nettyClient.getClientId());
         ctx.channel().writeAndFlush(registerRequest).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
-        log.info("已向服务器发送初始心跳包。");
+        log.info("已向服务器发送初始注册包。");
     }
 
     @Override
@@ -55,8 +55,8 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)  {
-        Channel incoming = ctx.channel();
-        log.warn("客户端{}处理异常，将中断连接。" , incoming.remoteAddress(), cause);
+        Channel channel = ctx.channel();
+        log.warn("客户端{}处理异常，将中断连接。" , channel.remoteAddress(), cause);
 
         // 当出现异常就关闭连接
         ctx.close();

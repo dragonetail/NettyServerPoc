@@ -1,4 +1,2 @@
 
-Spring Boot ${spring-boot.version}
-                                                         
-                                                         
+Netty Server V1.0

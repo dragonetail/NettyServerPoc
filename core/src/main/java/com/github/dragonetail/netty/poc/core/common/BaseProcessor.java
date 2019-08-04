@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 public class BaseProcessor<T extends BaseMessage> {
 
     public void process(T payload, ChannelHandlerContext ctx){
-        Channel incoming = ctx.channel();
-        log.info("收到客户端({})的数据包： {}", incoming.remoteAddress(), payload);
+        Channel channel = ctx.channel();
+        log.info("收到客户端({})的数据包： {}", channel.remoteAddress(), payload);
     }
 }

@@ -6,29 +6,25 @@ import com.github.dragonetail.netty.poc.core.message.ClientRegisterRequestMessag
 import com.github.dragonetail.netty.poc.core.message.ClientRegisterResponseMessage;
 import com.github.dragonetail.netty.poc.core.message.HeartBeatMessage;
 import com.github.dragonetail.netty.poc.core.message.UnknownMessage;
-import com.github.dragonetail.netty.poc.core.processor.ClientRegisterRequestHandler;
-import com.github.dragonetail.netty.poc.core.processor.ClientRegisterResponseHandler;
-import com.github.dragonetail.netty.poc.core.processor.HeartBeatHandler;
-import com.github.dragonetail.netty.poc.core.processor.UnknownHandler;
+import com.github.dragonetail.netty.poc.core.processor.HeartBeatProcessor;
+import com.github.dragonetail.netty.poc.core.processor.UnknownProcessor;
 import com.github.dragonetail.netty.poc.core.utils.SpringContextUtils;
 import com.github.dragonetail.netty.poc.sample.message.SampleRequestMessage;
 import com.github.dragonetail.netty.poc.sample.message.SampleResponseMessage;
-import com.github.dragonetail.netty.poc.sample.procesor.SampleRequestHandler;
-import com.github.dragonetail.netty.poc.sample.procesor.SampleResponseHandler;
+import com.github.dragonetail.netty.poc.sample.procesor.SampleRequestProcessor;
+import com.github.dragonetail.netty.poc.sample.procesor.SampleResponseProcessor;
 import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public enum Command {
-    unknown(-1, UnknownHandler.class.getSimpleName(), UnknownMessage.class),
-    heartBeat(0,  HeartBeatHandler.class.getSimpleName(), HeartBeatMessage.class),
-    clientRegisterRequest(1,  ClientRegisterRequestHandler.class.getSimpleName(), ClientRegisterRequestMessage.class),
-    clientRegisterResponse(2,  ClientRegisterResponseHandler.class.getSimpleName(), ClientRegisterResponseMessage.class),
-    sampleRequest(10,  SampleRequestHandler.class.getSimpleName(), SampleRequestMessage.class),
-    sampleResponse(11,  SampleResponseHandler.class.getSimpleName(), SampleResponseMessage.class);
-    //TODO processor更改成Spring的Bean的Name，由Spring容器中查找
-
+    unknown(-1, UnknownProcessor.class.getSimpleName(), UnknownMessage.class),
+    heartBeat(0,  HeartBeatProcessor.class.getSimpleName(), HeartBeatMessage.class),
+    clientRegisterRequest(1,  "ClientRegisterRequestProcessor", ClientRegisterRequestMessage.class),
+    clientRegisterResponse(2,  "ClientRegisterResponseProcessor", ClientRegisterResponseMessage.class),
+    sampleRequest(10,  SampleRequestProcessor.class.getSimpleName(), SampleRequestMessage.class),
+    sampleResponse(11,  SampleResponseProcessor.class.getSimpleName(), SampleResponseMessage.class);
 
     public final int code;
     public final String processorName;

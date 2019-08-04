@@ -24,8 +24,8 @@ public class ClientHolder {
         return clients.containsKey(clientId);
     }
 
-    public void remove(String clientId) {
-        clients.remove(clientId);
+    public void remove(Channel channel) {
+        clients.remove(channel);
     }
 
     public <T extends BaseMessage> void send(String clientId, T message) {

@@ -1,6 +1,7 @@
 package com.github.dragonetail.netty.poc.server;
 
 
+import com.github.dragonetail.netty.poc.core.handler.HeartbeatHandler;
 import com.github.dragonetail.netty.poc.core.handler.MessageDecoderHandler;
 import com.github.dragonetail.netty.poc.core.handler.MessageEncoderHandler;
 import io.netty.bootstrap.ServerBootstrap;
@@ -11,6 +12,7 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -32,6 +34,13 @@ public class NettyServer {
 
     @Value("${netty.port}")
     private Integer port;
+    @Value("${netty.idleTimeSeconds}")
+    private int idleTimeSeconds;
+
+    @Autowired
+    private ServerHandler serverHandler;
+    @Autowired
+    private HeartbeatHandler heartbeatHandler;
 
     /**
      * 启动Netty Server
@@ -61,15 +70,15 @@ public class NettyServer {
                         protected void initChannel(Channel ch) throws Exception {
                             ch.pipeline()
                                     //空闲检测
-                                    .addLast(new IdleStateHandler(60, 0, 0))
+                                    .addLast(new IdleStateHandler(idleTimeSeconds + 10, idleTimeSeconds, 0))
                                     .addLast("frameDecode", new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE,
                                             0, 4, 0, 0))
                                     .addLast("decoder", new MessageDecoderHandler())
                                     // 编码之前增加 两个字节的消息长度，
                                     .addLast("frame encoder", new LengthFieldPrepender(4))
                                     .addLast("encoder", new MessageEncoderHandler())
-                                    .addLast(new ServerHeartbeatCheckHandler())
-                                    .addLast(new ServerHandler());
+                                    .addLast(heartbeatHandler)
+                                    .addLast(serverHandler);
                         }
                     });
 
